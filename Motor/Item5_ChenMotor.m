@@ -144,12 +144,12 @@ plot(t_tl + ret_tl, y_t_tl, 'o', t2_tl + ret_tl, y_t2_tl, 'o', t3_tl + ret_tl, y
 
 %Metodo de Chen para I, para obtener I/Vin
 tRet_i = 0.0350;             % Tiempo de retardo estimado
-I_aux = Ia(31:50860);    % Parte 鷗il de la respuesta (corriente)
+I_aux = Ia(31:50860);    % Parte 煤til de la respuesta (corriente)
 t_aux = t0(31:50860);    % Tiempo correspondiente
 u_aux = Vi(31:50860);      % Entrada correspondiente
 
 y1i = max(I_aux);         
-uMax = max(Vi);            % Tensi髇 m醲ima de entrada
+uMax = max(Vi);            % Tensi贸n m谩xima de entrada
 
 % [val lugar] = min(abs(tc_tl + ret_tl - t0));
 % y_t_tl = w(lugar);
@@ -162,7 +162,7 @@ uMax = max(Vi);            % Tensi髇 m醲ima de entrada
 % [val lugar] = min(abs(3*tc_tl + ret_tl - t0));
 % y_t3_tl = w(lugar);
 % t3_tl = t0(lugar) - ret_tl;
-% Determinar los tiempos caracter韘ticos
+% Determinar los tiempos caracter铆sticos
 [val_i lugar] = min(abs(y1i - I_aux));
 t1i = t_aux(lugar);
 y1i = y1i / uMax;
@@ -188,7 +188,7 @@ sys_I=K_i*tf([1 0],conv([T1_i 1],[T2_i 1]))
 
 T3_i=T3_tl;
 
-% IDENTIFICACI覰 DE PAR罬ETROS DEL MOTOR DC
+% IDENTIFICACI脫N DE PAR脕METROS DEL MOTOR DC
 La=(T1_i*T2_i)/K_i;
 Ra=(T1_i + T2_i)/K_i;
 Km=(T1_i*T2_i + (T2_i^2)-(T3_i*(T1_i+T2_i)))/(k*(T3_i^2));
@@ -199,21 +199,21 @@ Bm=0;
 
 
 % === Resultados ===
-fprintf('\n---- PAR罬ETROS IDENTIFICADOS DEL MOTOR DC ----\n');
+fprintf('\n---- PAR脕METROS IDENTIFICADOS DEL MOTOR DC ----\n');
 fprintf('Constante de torque Km = %.4f Nm/A\n', Km);
 fprintf('Constante del par motor Ki = %.4f Nm/A\n', Ki);
 fprintf('Resistencia de armadura Ra = %.4f ohmios\n', Ra);
 fprintf('Inductancia de armadura La = %.6f H\n', La);
-fprintf('Momento de inercia Jm = %.6e kg穖瞈n', Jm);
-fprintf('Coef. de fricci髇 viscosa Bm = %.6e N穖穝/rad\n', Bm);
+fprintf('Momento de inercia Jm = %.6e kg路m虏\n', Jm);
+fprintf('Coef. de fricci贸n viscosa Bm = %.6e N路m路s/rad\n', Bm);
 
-figure(5);
-plot(t0, Ia, 'b', 'DisplayName', 'Datos originales');
-hold on;
-plot(t_i, y_i, 'r--', 'DisplayName', 'Modelo estimado');
-%plot([t1i t2i t3i], [y1i y2i y3i]*uMax, 'ko', 'DisplayName', 'Puntos medidos');
-xlabel('Tiempo [s]'); ylabel('Corriente [A]');
-%xlim([0 0.185]);
-title('Sistema estimado (segundo orden con un cero)');
-legend;
-grid on;
+% figure(5);
+% plot(t0, Ia, 'b', 'DisplayName', 'Datos originales');
+% hold on;
+% plot(t_i, y_i, 'r--', 'DisplayName', 'Modelo estimado');
+% %plot([t1i t2i t3i], [y1i y2i y3i]*uMax, 'ko', 'DisplayName', 'Puntos medidos');
+% xlabel('Tiempo [s]'); ylabel('Corriente [A]');
+% %xlim([0 0.185]);
+% title('Sistema estimado (segundo orden con un cero)');
+% legend;
+% grid on;
