@@ -128,9 +128,14 @@ sys_I=tf(K*[0 1],conv([T1_I 1],[T2_I 1])) %saco la funcion de transf
  %LC=T1*T2  y RC=T1+T2 -- De acuerdo con la función aproximada
 %Si valoroL => C=(T1*T2)/L y R=(T1+T2)/C
 
-C=K
-L=(T1*T2)/C
-R=(T1+T2)/C
+C=K;
+L=(T1*T2)/C;
+R=(T1+T2)/C;
+
+fprintf('\n---- PARÁMETROS IDENTIFICADOS DEL SISTEMA RLC ----\n');
+fprintf('Resistencia R= %.4f ohmios\n', R);
+fprintf('Capacitor C = %.4f Nm/A\n', Ki);
+fprintf('Inductancia L = %.4f \n', Ra);
 
 
 % figure (4)
