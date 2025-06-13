@@ -1,28 +1,43 @@
-clear all; clc; 
+clc; clear all; % close all;
+X = -[0; 0]; ii = 0;
+t_etapa = 1e-7;   % Paso de simulación
+tF = 0.05;       % Tiempo final
+u = 12;           % Entrada constante: voltaje al motor
 
-%Valores calculados en el item anterior: 
-R=267.5231; L= 0.0981;C= 1.0055e-05;
+for t = 0:t_etapa:tF
+    ii = ii + 1;
+    X = ModMotor(t_etapa, X, u); 
+    x1(ii) = X(1);  % Velocidad angular (omega)
+    x2(ii) = X(2);  % Derivada de velocidad (aceleración)
+    acc(ii) = u;    % Entrada aplicada
+end
+
+% Vector de tiempo para graficar
+t = 0:t_etapa:tF;
+
+% Gráficas
+subplot(2,1,1); hold on;
+plot(t, x1, 'b','LineWidth', 1.2); title('Salida y, \omega_t');
+ylabel('Velocidad [rad/s]');
+grid on;
+
+subplot(2,1,2); hold on;
+plot(t, acc, 'b','LineWidth', 1.2); title('Entrada u_t, v_a');
+xlabel('Tiempo [Seg.]');
+ylabel('Voltaje aplicado [V]');
+grid on;
 
 
-V0 = 12;       % Amplitud de la fuente de voltaje
-f = 10;       % Frecuencia de la fuente (en Hz)
-% Definir la función de voltaje 
-V = @(t) V0 * square(2 * pi * f * t);  % Fuente de voltaje sinusoidal
-
-% Definir el sistema de ecuaciones diferenciales
-odefun = @(t, y) [y(2); (V(t) - R * y(2) - y(1) / C) / L];
-
-% Resolver la ecuación diferencial
-tspan = [0.01 0.2];  % Tiempo de simulación 
-y0 = [0; 0];    % Condiciones iniciales (carga y corriente)
-[t, y] = ode45(odefun, tspan, y0);
-
-[z1]=xlsread('Curvas_Medidas_RLC_2024');
-t0=z1(:,1);
-I=z1(:,2);
-
-hold on;
-plot(t0,I,'r');title('Corriente Inductor I_L');grid;
-plot(t, y(:, 2),'b');  % y(:, 2) es la corriente i(t)
-xlim([0.0 0.2]);
-legend('Real','Modelo');
+function [X]=ModMotor(t_etapa, xant, accion)
+Laa=366e-6; J=5e-9;Ra=55.6;B=0;Ki=6.49e-3;Km=6.53e-3;
+Va=accion;
+h=1e-7;
+omega= xant(1);
+wp= xant(2);
+for ii=1:t_etapa/h
+wpp =(-wp*(Ra*J+Laa*B)-omega*(Ra*B+Ki*Km)+Va*Ki)/(J*Laa);
+wp=wp+h*wpp;
+omega = omega + h*wp;
+end
+X=[omega,wp];
+end
