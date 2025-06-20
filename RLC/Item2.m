@@ -134,8 +134,8 @@ R=(T1+T2)/C;
 
 fprintf('\n---- PARÁMETROS IDENTIFICADOS DEL SISTEMA RLC ----\n');
 fprintf('Resistencia R= %.4f ohmios\n', R);
-fprintf('Capacitor C = %.4f Nm/A\n', Ki);
-fprintf('Inductancia L = %.4f \n', Ra);
+fprintf('Capacitor C = %.4f \n', C);
+fprintf('Inductancia L = %.4f \n', L);
 
 
 % figure (4)
