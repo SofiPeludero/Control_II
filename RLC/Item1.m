@@ -8,25 +8,30 @@ Mat_A = [-R/L -1/L; 1/C 0];
 Mat_B = [1/L; 0];
 Mat_C = [R 0];
 
-% Cálculo de constantes de tiempo
+% CÃ¡lculo de constantes de tiempo
 Constantes_Tiempo = eig(Mat_A);
+fprintf('\n---- CONSTANTES DE TIEMPO CALCULADAS ----\n');
+fprintf('constante 1: %.4e \n', Constantes_Tiempo(1));
+fprintf('constante 2: %.4e \n', Constantes_Tiempo(2));
 
-At = 2.137379556099644e-09;  % Paso de tiempo (10 veces menor que la más rápida)
+%
+
+At = 2.137379556099644e-09;  % Paso de tiempo 
 Tf = 1.5e-3;                   % Tiempo final de manera que se pueda observar 
 
-N = round(Tf/At);  % Número total de pasos de simulación
+N = round(Tf/At);  % NÃºmero total de pasos de simulaciÃ³n
 x = [0; 0];        % Condiciones iniciales
 
 % Vector de tiempo corregido
 t = linspace(0, Tf, N);
 Vo = zeros(1, N);  % Salida inicializada
 
-% Simulación con entrada alternante cada 1 ms
+% SimulaciÃ³n con entrada alternante cada 1 ms
 for k = 1:N
     % Alternar la entrada cada 1 ms
     u = 12 * (-1)^(floor(t(k) / 1e-3));
     
-    % Aplicar la ecuación de estado
+    % Aplicar la ecuaciÃ³n de estado
     xp = Mat_A * x + Mat_B * u;
     x = x + At * xp;
     
