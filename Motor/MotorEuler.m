@@ -1,43 +1,20 @@
-clear; % close all;
-X = -[0; 0]; ii = 0;
-t_etapa = 1e-7;   % Paso de simulación
-tF = 0.001;       % Tiempo final
-u = 12;           % Entrada constante: voltaje al motor
-
-for t = 0:t_etapa:tF
-    ii = ii + 1;
-    X = ModMotor(t_etapa, X, u); 
-    x1(ii) = X(1);  % Velocidad angular (omega)
-    x2(ii) = X(2);  % Derivada de velocidad (aceleración)
-    acc(ii) = u;    % Entrada aplicada
-end
-
-% Vector de tiempo para graficar
-t = 0:t_etapa:tF;
-
-% Gráficas
-subplot(2,1,1); hold on;
-plot(t, x1, 'b'); title('Salida y, \omega_t (sin PID)');
-ylabel('Velocidad [rad/s]');
-grid on;
-
-subplot(2,1,2); hold on;
-plot(t, acc, 'b'); title('Entrada u_t, v_a');
-xlabel('Tiempo [Seg.]');
-ylabel('Voltaje aplicado [V]');
-grid on;
-
-
-function [X]=ModMotor(t_etapa, xant, accion)
-Laa=366e-6; J=5e-9;Ra=55.6;B=0;Ki=6.49e-3;Km=6.53e-3;
-Va=accion;
-h=1e-7;
-omega= xant(1);
-wp= xant(2);
+function [X]=modmotor_inicial(t_etapa, xant, accion)
+h=5e-6;
+%parametro motor item 5
+Km = 1.0831e-02;
+Ki = 9.3023e-03;
+Ra = 18.3275;
+Laa = 4.0207e-04;
+J = 2.7398e-09;
+Bm = 0;
+%Laa=500e-6; J=2.5e-9; Ra=20; Bm=0;Ki=10e-3; Km=60.53e-3;
+x=xant;
+ia=xant(1);wr=xant(2);titar=xant(3);Va=accion(1);TL=accion(2);
 for ii=1:t_etapa/h
-wpp =(-wp*(Ra*J+Laa*B)-omega*(Ra*B+Ki*Km)+Va*Ki)/(J*Laa);
-wp=wp+h*wpp;
-omega = omega + h*wp;
+    ia_p=-(Ra/Laa)*ia-(Km/Laa)*wr+(1/Laa)*Va;
+    wr_p=(Ki/J)*ia-(Bm/J)*wr-(1/J)*TL;
+    ia=ia+ia_p*h;
+    wr=wr+wr_p*h;
+    titar=titar+wr*h;
 end
-X=[omega,wp];
-end
+X=[ia;wr;titar];
