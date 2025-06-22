@@ -1,81 +1,59 @@
 clear all; clc;
-%Parametros del motor item 5
-Km = 1.0831e-02;   % Nm/A
-Ki_m = 9.3023e-03;   % V*s/rad
-Ra = 18.3275;      % Ohm
-Laa = 4.0207e-04;   % H
-Jm = 2.7398e-09;   % kg*m^2
-B = 0;             % Fricción despreciable
-TL_max = 0.0011;   % Torque perturbador máximo
 
-% TIEMPO DE SIMULACIÓN
-tau_el = Laa / Ra;                % Tiempo eléctrico (corriente)
-tau_mec = Jm / (Km * Ki_m / Ra);    % Tiempo mecánico aproximado
-Ts=min(tau_el, tau_mec) / 10;
+TL_Max =0.0011;
 
-%Ts = 1e-4;         % Paso de simulación
-Tfinal = 0.1;      % Tiempo total
-N = round(Tfinal / Ts);
+X=-[0; 0;0];ii=0;
+%t_etapa=t_D(10)-t_D(9); 
+t_etapa =   1e-05;
+titaRef=57.2958;
+tF=.30; 
 
-% angulo de referencia
-ref = 57.2958; %1pi[rad]=180 => 1rad=57.2958
-%ref=pi/2;
+%Constantes del PID
+%Kp=20;Ki=250;Kd=0.001;color_='r';
+Kp=10;Ki=250;Kd=0.00001;color_='r';
 
-Kp = 0.001;
-Ki= 0.5;
-Kd =0.11;
+Ts=t_etapa;
+A1=((2*Kp*Ts)+(Ki*(Ts^2))+(2*Kd))/(2*Ts);
+B1=(-2*Kp*Ts+Ki*(Ts^2)-4*Kd)/(2*Ts);
+C1=Kd/Ts;
+N=round(tF/t_etapa);
+e=zeros(N,1);u=0;k=2;TL_ap=0;
 
-A1 = ((2*Kp*Ts)+(Ki*Ts^2)+(2*Kd))/(2*Ts);
-B1 = ((-2*Kp*Ts)+(Ki*Ts^2)-(4*Kd))/(2*Ts);
-C1 = Kd/Ts;
-
-%Variables de est
-X = [0; 0; 0]; % [ia; wr; theta]
-%e = zeros(N+3, 1); 
-u = 0; psi = 0;
-e = zeros(N+2,1);
-
-x1 = zeros(N,1); 
-x2 = zeros(N,1); 
-x3 = zeros(N,1);
-acc = zeros(N,1); 
-TL_hist = zeros(N,1); 
-ref_hist = zeros(N,1);
-
-%Del torque
-TL_ap = zeros(N,1);
-t = (0:N-1)*Ts;
-TL_ap((t>=0.2)&(t<=0.33)) = TL_max;
-TL_ap((t>=0.5)&(t<=0.63)) = TL_max;
-
-% Controlador
-for k = 3:N
-    % Error con referencia
-    e(k) = ref - X(3); % ángulo
-    
-    % PID discreto
-    u = u + A1*e(k) + B1*e(k-1) + C1*e(k-2);
-
-    % Simular motor con entrada 'u' y perturbación TL_ap(k)
-    X = ModMotor(Ts, X, [u, TL_ap(k)]);
-
-    % Guardar resultados
-    x1(k) = X(1); % Corriente
-    x2(k) = X(2); % Velocidad angular
-    x3(k) = X(3); % Ángulo
-    acc(k) = u;
-    TL_hist(k) = TL_ap(k);
-    ref_hist(k) = ref;
+for jj=1:N
+    ii=ii+1;k=k+1;
+    if jj*t_etapa>.07 %Primeros 5seg con Torque nulo
+        TL_ap=TL_Max;
+    end
+    if jj*t_etapa<=.15 %Primeros 5seg con Torque nulo
+        titaRef=pi/2;        
+    end
+    if jj*t_etapa>.15
+        titaRef=-pi/2;
+        TL_ap=TL_Max;
+    end
+%     X=modmotor_identificado(t_etapa, X, [u,TL_ap]); %Con ésto se ajusta
+%     el PID, desde cálculo
+    X=modmotor_inicial(t_etapa, X, [u,TL_ap]); %Con ésto se prueba (simil planta)
+    e(k)=titaRef-X(3); %ERROR tita
+    u=u+A1*e(k)+B1*e(k-1)+C1*e(k-2); %PID
+    x1(ii)=X(1);% 
+    x2(ii)=X(2);% 
+    x3(ii)=X(3);%X=[ia;wr;titar];
+    acc(ii)=u;
+    TL_D1(ii)=TL_ap;
+    titaRef_(ii)=titaRef;
 end
-
+th=0:t_etapa:tF;
+t=th(1:ii);
 figure(1);
-subplot(3,1,1);
-plot(t, ref_hist, 'k--', t, x3, 'b');
-title('Salida y, \theta '); ylabel('\theta (rad)'); grid on; legend('Ref','Salida');
-%xlim([-0.000001 0.001]);
-
-subplot(3,1,2);
-plot(t, x1, 'r'); title('Corriente i_a'); ylabel('i_a (A)'); grid on;
-
-subplot(3,1,3);
-plot(t, acc, 'm'); title('Acción de Control V_a'); ylabel('V_a (V)'); xlabel('Tiempo (s)'); grid on;
+subplot(2,2,1);hold on;
+plot(t,titaRef_,'--' ,t,x3,color_,'LineWidth',1.3);title('Salida y, \theta_t');legend('Ref','\theta');legend('boxoff');grid on;
+subplot(2,2,2);hold on;grid on;
+plot(t,x1,color_,'LineWidth',1.3);title('Corriente i_t');
+xlabel('Tiempo [Seg.]');
+subplot(2,2,3);hold on;grid on;
+plot(t,TL_D1,color_,'LineWidth',1.3);title('Torque T_L');
+xlabel('Tiempo [Seg.]');
+subplot(2,2,4);hold on;grid on;
+plot(t,acc,color_,'LineWidth',1.3);title('Entrada u_t, v_a');
+xlabel('Tiempo [Seg.]');grid on;
