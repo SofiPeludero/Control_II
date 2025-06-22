@@ -29,7 +29,7 @@ A1 = ((2*Kp*Ts)+(Ki*Ts^2)+(2*Kd))/(2*Ts);
 B1 = ((-2*Kp*Ts)+(Ki*Ts^2)-(4*Kd))/(2*Ts);
 C1 = Kd/Ts;
 
-% VARIABLES DE ESTADO
+%Variables de est
 X = [0; 0; 0]; % [ia; wr; theta]
 %e = zeros(N+3, 1); 
 u = 0; psi = 0;
@@ -42,13 +42,13 @@ acc = zeros(N,1);
 TL_hist = zeros(N,1); 
 ref_hist = zeros(N,1);
 
-% PERFIL DE TORQUE PERTURBADOR (según imagen)
+%Del torque
 TL_ap = zeros(N,1);
 t = (0:N-1)*Ts;
 TL_ap((t>=0.2)&(t<=0.33)) = TL_max;
 TL_ap((t>=0.5)&(t<=0.63)) = TL_max;
 
-% SIMULACIÓN DEL CONTROLADOR
+% Controlador
 for k = 3:N
     % Error con referencia
     e(k) = ref - X(3); % ángulo
@@ -72,7 +72,7 @@ figure(1);
 subplot(3,1,1);
 plot(t, ref_hist, 'k--', t, x3, 'b');
 title('Salida y, \theta '); ylabel('\theta (rad)'); grid on; legend('Ref','Salida');
-xlim([-0.000001 0.001]);
+%xlim([-0.000001 0.001]);
 
 subplot(3,1,2);
 plot(t, x1, 'r'); title('Corriente i_a'); ylabel('i_a (A)'); grid on;
